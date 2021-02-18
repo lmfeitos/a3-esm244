@@ -1,0 +1,31 @@
+---
+title: "a3_task1_leonardo_feitosa"
+author: "Leonardo Feitosa"
+date: "18/02/2021"
+output: 
+  html_document:
+    code_foding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(tmap)
+library(lubridate)
+library(janitor)
+library(sf)
+```
+
+## Read in the data
+
+```{r}
+ca_oil_spills <- read_csv(here("data", "oil_spill_incident_tracking.csv")) %>% 
+  clean_names() %>% 
+  rename(object_id = objectid,
+         dfg_control = dfgcontrol)
+
+ca_counties <- read_sf(here("data", "ca_counties", "ca_counties.shp")) %>% 
+  clean_names()
+```
+

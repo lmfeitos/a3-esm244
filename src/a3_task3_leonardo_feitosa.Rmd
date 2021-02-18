@@ -1,0 +1,15 @@
+---
+title: "a3_task3_leonardo_feitosa"
+author: "Leonardo Feitosa"
+date: "18/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(ggwordcloud)
+```
+

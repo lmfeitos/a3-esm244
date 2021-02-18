@@ -1,0 +1,17 @@
+---
+title: "a3_task2_leonardo_feitosa"
+author: "Leonardo Feitosa"
+date: "18/02/2021"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(sf)
+library(janitor)
+library(rnaturalearth)
+```
