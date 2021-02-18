@@ -9,9 +9,19 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(raster)
 library(tidyverse)
 library(here)
+library(fasterize)
 library(sf)
 library(janitor)
 library(rnaturalearth)
 ```
+
+
+## Read in the data
+
+```{r}
+raster_files <- here('data', 'ca_cetaceans', 'Balaenoptera_borealis.tif')
+```
+
