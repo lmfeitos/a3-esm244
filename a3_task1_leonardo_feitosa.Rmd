@@ -8,7 +8,9 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
 library(tidyverse)
 library(here)
 library(tmap)
@@ -23,9 +25,85 @@ library(sf)
 ca_oil_spills <- read_csv(here("data", "oil_spill_incident_tracking.csv")) %>% 
   clean_names() %>% 
   rename(object_id = objectid,
-         dfg_control = dfgcontrol)
+         dfg_control = dfgcontrol,
+         oes_number = oesnumber,
+         date = dateofinci,
+         inland_marine = inlandmari,
+         time = timeofinci,
+         location = specificlo,
+         city = localecity,
+         county = localecoun) %>% 
+  filter(latitude != 0,
+         longitude != 0)
 
-ca_counties <- read_sf(here("data", "ca_counties", "ca_counties.shp")) %>% 
-  clean_names()
+ca_counties <- read_sf(here("data", "ca_counties", "CA_Counties_TIGER2016.shp")) %>% 
+  clean_names() %>% 
+  dplyr::select(name, namelsad) %>% 
+  rename(county = name)
 ```
+
+## Data wrangling
+
+```{r}
+ca_oil_spills_tidy <- ca_oil_spills %>%
+  mutate(date = as.Date(date)) %>% 
+  mutate(date = ymd(date)) %>% 
+  mutate(year = year(date)) %>% 
+  dplyr::select(date, year, longitude, latitude, city, county, waterway) %>% 
+  st_as_sf(coords = c("longitude", "latitude"))
+
+# set crs for ca_oil_spills_tidy based on ca_counties
+ca_counties %>% st_crs() #3857
+st_crs(ca_oil_spills_tidy) = 3857
+
+ca_oil_spills_tidy %>% st_crs()
+```
+
+## Interactive map
+
+```{r}
+ggplot() +
+  geom_sf(data = ca_counties,
+          size = 0.1,
+          color = "gray18") +
+  geom_sf(data = ca_oil_spills_tidy,
+          color = "black",
+          size = 0.5) +
+  theme_bw()
+```
+
+
+```{r}
+tmap_mode(mode = "view")
+
+tm_shape(ca_counties) +
+  tm_fill("county") +
+  tm_shape(ca_oil_spills_tidy) +
+  tm_dots()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
