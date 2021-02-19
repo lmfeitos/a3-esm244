@@ -10,6 +10,52 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidytext)
 library(textdata)
+library(pdftools)
 library(ggwordcloud)
+library(here)
 ```
+
+## Read in the data 
+
+```{r, cache = TRUE}
+ofs_text <- pdf_text(here("data", "origin_of_species.pdf"))
+
+ofs_text_p50 <- ofs_text[50]
+```
+
+## Wrangling text
+
+```{r}
+ofs_text_tidy <- data.frame(ofs_text) %>% 
+  mutate(text_full = str_split(ofs_text, pattern = "\\r\n")) %>% 
+  unnest(text_full) %>% 
+  mutate(text_full = str_squish(text_full))
+```
+
+
+## Tidying the data
+
+```{r}
+ofs_df <- ofs_text_tidy %>% 
+  slice(-(1:247)) %>% 
+  mutate(chapter = case_when(
+    str_detect(text_full, "INTRODUCTION") ~ text_full,
+    str_detect(text_full, "CHAPTEK") ~ text_full,
+    TRUE ~ NA_character_
+  )) %>% 
+  fill(chapter) %>% 
+  separate(col = chapter, into = c("ch", "no"), sep = " ") %>% 
+  mutate(chapter = as.numeric(as.roman(no)))
+```
+
+
+
+
+
+
+
+
+
+
+
 
