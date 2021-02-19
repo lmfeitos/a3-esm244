@@ -45,7 +45,8 @@ sherlock_df <- sherlock_text_tidy %>%
     TRUE ~ NA_character_
   )) %>% 
   fill(part) %>% 
-  separate(col = part, into = c("pt", "no"), sep = " ")
+  separate(col = part, into = c("pt", "no"), sep = " ") %>% 
+  mutate(no = as.numeric(no))
 ```
 
 ## Counts of words
@@ -53,8 +54,7 @@ sherlock_df <- sherlock_text_tidy %>%
 ```{r}
 sherlock_tokens <- sherlock_df %>% 
   unnest_tokens(word, text_full) %>% 
-  select(-sherlock_text) %>% 
-  mutate(no = as.numeric(no))
+  select(-sherlock_text)
 
 # Counts
 sherlock_wordcount <- sherlock_tokens %>% 
@@ -117,12 +117,66 @@ sherlock_afinn <- sherlock_nonstop_words %>%
   inner_join(get_sentiments("afinn"))
 ```
 
+## Counts
+
+```{r}
+afinn_counts <- sherlock_afinn %>% 
+  count(no, value)
+
+# Plot
+ggplot(data = afinn_counts, aes(x = value, y = n)) +
+  geom_col() +
+  facet_wrap(~ no)
+```
+
+## Mean afinn scores per part
+
+```{r}
+afinn_means <- sherlock_afinn %>% 
+  group_by(no) %>% 
+  summarise(mean_afinn = mean(value))
 
 
+ggplot(data = afinn_means, aes(x = fct_rev(as.factor(no)),
+                               y = mean_afinn)) +
+  geom_col() +
+  coord_flip()
+```
 
 
+## NRC
 
+```{r}
+sherlock_nrc <- sherlock_nonstop_words %>% 
+  inner_join(get_sentiments("nrc"))
+```
 
+```{r}
+sherlock_nrc_counts <- sherlock_nrc %>% 
+  count(no, sentiment)
+
+ggplot(data = sherlock_nrc_counts, aes(x = sentiment, y = n)) +
+  geom_col() +
+  facet_wrap(~ no) +
+  coord_flip()
+```
+
+## Bing
+
+```{r}
+sherlock_bing <- sherlock_nonstop_words %>% 
+  inner_join(get_sentiments("bing"))
+
+# Counts
+sherlock_bing_counts <- sherlock_bing %>% 
+  count(no, sentiment)
+
+# Plot
+ggplot(data = sherlock_bing_counts, aes(x = sentiment, y = n)) +
+  geom_col() +
+  facet_wrap(~ no) +
+  coord_flip()
+```
 
 
 
