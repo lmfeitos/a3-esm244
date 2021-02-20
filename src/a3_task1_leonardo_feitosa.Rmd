@@ -19,10 +19,12 @@ library(janitor)
 library(sf)
 ```
 
-## Read in the data
+
 
 ```{r}
-ca_oil_spills <- read_csv(here("data", "oil_spill_incident_tracking.csv")) %>% 
+## Read in the data
+### Oil spills by county
+ca_oil_spills <- read_sf(here("data", "oil_spills", "Oil_Spill_Incident_Tracking_%5Bds394%5D.shp")) %>% 
   clean_names() %>% 
   rename(object_id = objectid,
          dfg_control = dfgcontrol,
@@ -32,51 +34,50 @@ ca_oil_spills <- read_csv(here("data", "oil_spill_incident_tracking.csv")) %>%
          time = timeofinci,
          location = specificlo,
          city = localecity,
-         county = localecoun) 
+         county_name = localecoun) 
 
   
-
+### California counties shape file
 ca_counties <- read_sf(here("data", "ca_counties", "CA_Counties_TIGER2016.shp")) %>% 
   clean_names() %>% 
   dplyr::select(name) %>% 
-  rename(county = name)
+  rename(county_name = name)
 ```
 
-## Data wrangling
 
 ```{r}
+## Oil spill data wrangling
 ca_oil_spills_tidy <- ca_oil_spills %>%
   mutate(date = as.Date(date)) %>% 
   mutate(date = ymd(date)) %>% 
   mutate(year = year(date)) %>% 
-  dplyr::select(date, year, longitude, latitude, city, county, waterway) %>% 
-  st_as_sf(coords = c("longitude", "latitude"))
+  dplyr::select(date, year, longitude, latitude, city, county_name, inland_marine)
 
-# set crs for ca_oil_spills_tidy based on ca_counties
-ca_counties %>% st_crs() #3857
-st_crs(ca_oil_spills_tidy) = 3857
-
+## set crs for both datasets
+ca_counties %>% st_crs()
 ca_oil_spills_tidy %>% st_crs()
 ```
 
 
-```{r}
-oil_spills_join <- ca_oil_spills_tidy %>% 
-  st_join(ca_counties)
-
-ggplot(data = oil_spills_join) +
+```{r, include = FALSE}
+ggplot() +
+  geom_sf(data = ca_counties,
+          color = "gray18",
+          size = 0.1) +
   geom_sf(data = ca_oil_spills_tidy,
           color = "black",
-          size = 0.5) 
+          size = 0.5) +
   theme_bw()
 ```
 
+## Interactive map of California oil spills in 2008
 
 ```{r}
-tmap_mode(mode = "view")
+tmap_mode("view")
 
-tm_shape(oil_spills_join) +
-  tm_fill("county.x")
+tm_shape(ca_counties) +
+  tm_fill("county_name") +
+  tm_shape(ca_oil_spills_tidy) +
   tm_dots()
 ```
 
@@ -86,12 +87,26 @@ tm_shape(oil_spills_join) +
 ## Part 2
 
 ```{r}
-oil_spills_count <- oil_spills_join %>% 
-  count(county.x)
+## Counts of California oil spills by county
+ca_oil_spills_join <- ca_counties %>% 
+  st_join(ca_oil_spills_tidy)
 
-ggplot() +
-  geom_sf(data = oil_spills_join, aes(x = , y = ))
+oil_spills_count <- ca_oil_spills_join2 %>% 
+  filter(inland_marine %in% c("Inland")) %>% 
+  count(county_name.x, inland_marine) %>%
+  mutate(n = as.numeric(n))
 
+
+ggplot(data = oil_spills_count) +
+  geom_sf(aes(fill = n),
+          color = "black",
+          size = 0.5) +
+  scale_fill_gradientn(colors = c("cyan", "blue", "purple")) +
+  labs(title = "Inland oil spill records by county in California for 2008",
+       fill = "Concentration of oil spill records") +
+  theme_bw() +
+  theme(axis.text = element_text(size = 10, face = "bold", color = "black"),
+        panel.grid = element_blank())
 ```
 
 
