@@ -4,6 +4,7 @@ author: "Leonardo Feitosa"
 date: "18/02/2021"
 output: 
   html_document:
+    theme: journal
     code_folding: hide
 ---
 
@@ -25,9 +26,51 @@ library(rnaturalearth)
 cetaceans <- list.files(path = here("data", "ca_cetaceans"),
                        pattern = "*.tif",
                        full.names = TRUE)
-cet_raster <- raster::stack(cetaceans)
+
+cet_stack <- raster::stack(cetaceans)
+
+
 
 plot(cet_raster)
 
+cet_raster %>% st_crs()
 ```
+
+```{r}
+## Calculating means
+cet_means <- calc(cet_stack, fun = mean, na.rm = FALSE)
+```
+
+
+
+```{r}
+## Setting probability threshold
+is_habitat <- function(x, thresh = 0.6) {
+  y <- ifelse(x >= thresh, 1, NA)
+  return(y)
+}
+
+cet <- calc(cet_stack, fun = is_habitat)
+plot(cet)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
