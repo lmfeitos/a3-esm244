@@ -91,7 +91,7 @@ tm_shape(ca_counties) +
 ca_oil_spills_join <- ca_counties %>% 
   st_join(ca_oil_spills_tidy)
 
-oil_spills_count <- ca_oil_spills_join2 %>% 
+oil_spills_count <- ca_oil_spills_join %>% 
   filter(inland_marine %in% c("Inland")) %>% 
   count(county_name.x, inland_marine) %>%
   mutate(n = as.numeric(n))
@@ -101,7 +101,7 @@ ggplot(data = oil_spills_count) +
   geom_sf(aes(fill = n),
           color = "black",
           size = 0.5) +
-  scale_fill_gradientn(colors = c("cyan", "blue", "purple")) +
+  scale_fill_viridis_c() +
   labs(title = "Inland oil spill records by county in California for 2008",
        fill = "Concentration of oil spill records") +
   theme_bw() +
