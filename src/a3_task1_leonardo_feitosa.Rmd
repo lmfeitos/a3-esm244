@@ -4,7 +4,8 @@ author: "Leonardo Feitosa"
 date: "18/02/2021"
 output: 
   html_document:
-    code_foding: hide
+    theme: journal
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -52,10 +53,13 @@ ca_oil_spills_tidy <- ca_oil_spills %>%
   mutate(date = ymd(date)) %>% 
   mutate(year = year(date)) %>% 
   dplyr::select(date, year, longitude, latitude, city, county_name, inland_marine)
+```
 
+```{r, include = FALSE}
 ## set crs for both datasets
 ca_counties %>% st_crs()
 ca_oil_spills_tidy %>% st_crs()
+
 ```
 
 
@@ -103,7 +107,7 @@ ggplot(data = oil_spills_count) +
           size = 0.5) +
   scale_fill_viridis_c() +
   labs(title = "Inland oil spill records by county in California for 2008",
-       fill = "Concentration of oil spill records") +
+       fill = "Number of oil spill records") +
   theme_bw() +
   theme(axis.text = element_text(size = 10, face = "bold", color = "black"),
         panel.grid = element_blank())
