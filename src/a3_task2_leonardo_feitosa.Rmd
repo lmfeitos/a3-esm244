@@ -17,6 +17,7 @@ library(fasterize)
 library(sf)
 library(janitor)
 library(rnaturalearth)
+library(rgeos)
 ```
 
 
@@ -29,16 +30,14 @@ cetaceans <- list.files(path = here("data", "ca_cetaceans"),
 
 cet_stack <- raster::stack(cetaceans)
 
-
-
-plot(cet_raster)
-
-cet_raster %>% st_crs()
+plot(cet_stack)
 ```
 
 ```{r}
 ## Calculating means
-cet_means <- calc(cet_stack, fun = mean, na.rm = FALSE)
+cet_means <- calc(cet_stack, fun = mean, na.rm = T)
+
+plot(cet_means)
 ```
 
 
@@ -50,11 +49,39 @@ is_habitat <- function(x, thresh = 0.6) {
   return(y)
 }
 
-cet <- calc(cet_stack, fun = is_habitat)
-plot(cet)
+cet <- calc(cet_means, fun = is_habitat)
 
+plot(cet)
 ```
 
+```{r}
+# Create dataframes from the rasters
+
+cet_df <- raster::rasterToPoints(cet_means) %>% 
+  as.data.frame()
+
+habitat_df <- raster::rasterToPoints(cet) %>% 
+  as.data.frame()
+
+## Get map from rnaturalearth
+california <- ne_countries(country = "united states of america", returnclass = "sf")
+
+california %>% st_crs()
+
+
+# Test
+ggplot() +
+  geom_raster(data = cet_df, aes(x = x, y = y, fill = layer)) +
+  geom_raster(data = habitat_df, aes(x = x, y = y))
+
+# Make the plot
+ggplot(data = california) +
+  geom_sf() +
+  geom_raster(data = cet_df, aes(x = x, y = y, fill = layer)) +
+  geom_raster(data = habitat_df, aes(x = x, y = y)) +
+  coord_sf() +
+  theme_bw()
+```
 
 
 
