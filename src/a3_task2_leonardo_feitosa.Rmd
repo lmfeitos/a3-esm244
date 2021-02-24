@@ -16,6 +16,7 @@ library(here)
 library(fasterize)
 library(sf)
 library(janitor)
+library(rnaturalearthdata)
 library(rnaturalearth)
 library(rgeos)
 ```
@@ -44,8 +45,8 @@ plot(cet_means)
 
 ```{r}
 ## Setting probability threshold
-is_habitat <- function(x, thresh = 0.6) {
-  y <- ifelse(x >= thresh, 1, NA)
+is_habitat <- function(x, thresh = 0.7) {
+  y <- ifelse(x >= thresh, 1, 0)
   return(y)
 }
 
@@ -71,16 +72,21 @@ california %>% st_crs()
 
 # Test
 ggplot() +
-  geom_raster(data = cet_df, aes(x = x, y = y, fill = layer)) +
+  geom_raster(data = cet_df, aes(x = x, y = y)) +
   geom_raster(data = habitat_df, aes(x = x, y = y))
 
 # Make the plot
 ggplot(data = california) +
-  geom_sf() +
-  geom_raster(data = cet_df, aes(x = x, y = y, fill = layer)) +
-  geom_raster(data = habitat_df, aes(x = x, y = y)) +
-  coord_sf() +
-  theme_bw()
+  geom_sf(data = ) +
+  geom_raster(data = habitat_df, aes(x = x, y = y, fill = layer)) +
+  geom_raster(data = cet_df, aes(x = x, y = y)) +
+  scale_fill_gradient(low = "white", high = "slateblue") +
+  coord_sf(xlim = c(-130, -110),
+           ylim = c(27, 45),
+           expand = T) +
+  labs(title = "Probability of occurrences for cetacean species in California") +
+  theme_bw() +
+  theme(axis.title = element_blank())
 ```
 
 
