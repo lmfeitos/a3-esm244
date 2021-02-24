@@ -34,13 +34,6 @@ cet_stack <- raster::stack(cetaceans)
 plot(cet_stack)
 ```
 
-```{r}
-## Calculating means
-cet_means <- calc(cet_stack, fun = mean, na.rm = T)
-
-plot(cet_means)
-```
-
 
 
 ```{r}
@@ -50,18 +43,19 @@ is_habitat <- function(x, thresh = 0.7) {
   return(y)
 }
 
-cet <- calc(cet_means, fun = is_habitat)
+# Filter rasters for the 0.7 threshold
+cet <- calc(cet_stack, fun = is_habitat)
+
+# Calculate cetacean species richness
+cet_new <- calc(cet, fun = sum, na.rm = T)
 
 plot(cet)
+plot(cet_new)
 ```
 
 ```{r}
 # Create dataframes from the rasters
-
-cet_df <- raster::rasterToPoints(cet_means) %>% 
-  as.data.frame()
-
-habitat_df <- raster::rasterToPoints(cet) %>% 
+richness_df <- raster::rasterToPoints(cet_new) %>% 
   as.data.frame()
 
 ## Get map from rnaturalearth
@@ -77,16 +71,17 @@ ggplot() +
 
 # Make the plot
 ggplot(data = california) +
-  geom_sf(data = ) +
-  geom_raster(data = habitat_df, aes(x = x, y = y, fill = layer)) +
-  geom_raster(data = cet_df, aes(x = x, y = y)) +
+  geom_raster(data = richness_df, aes(x = x, y = y, fill = layer)) +
+  geom_sf() +
   scale_fill_gradient(low = "white", high = "slateblue") +
-  coord_sf(xlim = c(-130, -110),
-           ylim = c(27, 45),
+  coord_sf(xlim = c(-125.5, -116),
+           ylim = c(32.3, 37.8),
            expand = T) +
-  labs(title = "Probability of occurrences for cetacean species in California") +
+  labs(title = "Probability of occurrences for cetacean species in California",
+       fill = "Richness") +
   theme_bw() +
-  theme(axis.title = element_blank())
+  theme(axis.title = element_blank(),
+        panel.grid = element_blank())
 ```
 
 
