@@ -1,5 +1,11 @@
 base
+methods
 emo
+datasets
+utils
+grDevices
+graphics
+stats
 tidyverse
 ggplot2
 tibble
@@ -12,9 +18,9 @@ forcats
 tidytext
 textdata
 pdftools
-ggwordcloud
-here
 ggrepel
+ggwordcloud
 fishualize
+here
 jpeg
 ggpubr
