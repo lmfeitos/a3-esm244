@@ -13,13 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(raster)
 library(tidyverse)
 library(here)
-library(fasterize)
 library(sf)
 library(janitor)
 library(rnaturalearthdata)
 library(rnaturalearth)
-library(rgeos)
-library(patchwork)
 ```
 
 

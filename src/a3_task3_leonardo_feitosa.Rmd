@@ -161,7 +161,7 @@ ggplot(data = sherlock_nrc_counts, aes(x = sentiment, y = n)) +
 
 
 
-#### Citation: Doyle, AC (1892) The Adventures of Sherlock Holmes. *INCLUDE PUBLISHER*
+#### Citation: Doyle, AC (1892) The Adventures of Sherlock Holmes. Martin Secker & Warburg Ltd
 
 
 
