@@ -19,6 +19,7 @@ library(janitor)
 library(rnaturalearthdata)
 library(rnaturalearth)
 library(rgeos)
+library(patchwork)
 ```
 
 
@@ -59,29 +60,16 @@ richness_df <- raster::rasterToPoints(cet_new) %>%
   as.data.frame()
 
 ## Get map from rnaturalearth
-california <- ne_countries(country = "united states of america", returnclass = "sf")
+world <- ne_countries(scale = "medium", returnclass = "sf")
 
-california %>% st_crs()
-
-
-# Test
-ggplot() +
-  geom_raster(data = cet_df, aes(x = x, y = y)) +
-  geom_raster(data = habitat_df, aes(x = x, y = y))
-
-# Make the plot
-ggplot(data = california) +
-  geom_raster(data = richness_df, aes(x = x, y = y, fill = layer)) +
-  geom_sf() +
-  scale_fill_gradient(low = "white", high = "slateblue") +
-  coord_sf(xlim = c(-125.5, -116),
-           ylim = c(32.3, 37.8),
-           expand = T) +
-  labs(title = "Probability of occurrences for cetacean species in California",
-       fill = "Richness") +
+crop_plot <- ggplot(data = world) +
+  geom_sf(fill = "peachpuff4",
+          color = "black",
+          size = 0.1) +
+  geom_rect(xmin = -110, xmax = -130, ymin = 25, ymax = 45,
+            fill = NA, color = "orange", size = 1) +
   theme_bw() +
-  theme(axis.title = element_blank(),
-        panel.grid = element_blank())
+  theme(panel.grid = element_blank())
 ```
 
 
@@ -90,15 +78,73 @@ ggplot(data = california) +
 
 
 
+```{r}
+# Make the plot
+cet_map <- ggplot(data = california) +
+  geom_raster(data = richness_df, aes(x = x, y = y, fill = layer)) +
+  geom_sf(fill = "peachpuff4",
+          color = "black",
+          size = 0.7) +
+  scale_fill_gradient(low = "lightgreen", high = "darkgreen") +
+  geom_text(aes(x = -118, y = 37.5,
+                label = "California"),
+            color = "white",
+            size = 4) +
+  coord_sf(xlim = c(-125, -116.4),
+           ylim = c(32.3, 37.8),
+           expand = T) +
+  labs(fill = "Richness") +
+  theme_bw() +
+  theme(axis.title = element_blank(),
+        panel.grid = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "left",
+        legend.background = element_rect(fill = "transparent"),
+        legend.text = element_text(color = "black"),
+        legend.title = element_text(color = "black", size = 10))
+```
+
+```{r}
+west_coast <- ggplot(data = world) +
+  geom_sf(fill = "peachpuff4") +
+  coord_sf(xlim = c(-140, -100),
+           ylim = c(25, 45)) +
+  geom_rect(xmin = -118.5, xmax = -121, ymin = 34, ymax = 35.5,
+            fill = NA, color = "orange", size = 1) +
+  geom_text(aes(x = -135, y = 27,
+                label = "Pacific Ocean"),
+            color = "gray22",
+            size = 2.5) +
+  geom_text(aes(x = -110, y = 40,
+                label = "United States of America"),
+            color = "white",
+            size = 2.5) +
+  geom_text(aes(x = -105, y = 27,
+                label = "Mexico"),
+            color = "white",
+            size = 2.5) +
+  theme_bw() +
+  theme(panel.grid = element_blank(),
+        axis.text = element_text(size = 5, color = "gray18"),
+        axis.title = element_blank())
+
+west_coast
+```
+
+
+```{r}
+ggplot() +
+  coord_equal(xlim = c(0, 28), ylim = c(0, 20), expand = FALSE) +
+  annotation_custom(ggplotGrob(west_coast), xmin = 12, xmax = 28, ymin = 0, ymax = 12) +
+  annotation_custom(ggplotGrob(cet_map), xmin = 0, xmax = 14.5, ymin = 10, ymax = 20) +
+  geom_segment(aes(x = 20.3, y = 6.4, xend = 14.3, yend = 11.3), arrow = arrow(), lineend = "round", size = 0.8) +
+  theme_void()
+```
 
 
 
 
-
-
-
-
-
+ 
 
 
 
