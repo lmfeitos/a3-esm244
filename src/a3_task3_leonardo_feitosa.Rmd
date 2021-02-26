@@ -118,7 +118,7 @@ top_50_words <- nonstop_counts %>%
   slice(1:50)
 
 # Read in the image
-img <- readJPEG(here("data", "sherlock", "jaws2.jpg"))
+img <- readJPEG(here("data", "jaws2.jpg"))
 
 top_50_words %>% 
   filter(no == 1) %>% 

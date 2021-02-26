@@ -282,7 +282,7 @@ ggplot(data = top_9_words, aes(x = word, y = n)) +
   slice(1:50)
 
 # Read in the image
-img &lt;- readJPEG(here(&quot;data&quot;, &quot;sherlock&quot;, &quot;jaws2.jpg&quot;))
+img &lt;- readJPEG(here(&quot;data&quot;, &quot;jaws2.jpg&quot;))
 
 top_50_words %&gt;% 
   filter(no == 1) %&gt;% 
